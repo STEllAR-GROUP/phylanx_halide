@@ -18,9 +18,9 @@
 
 namespace phylanx_halide_plugin {
 
-    class harries
+    class harris
       : public phylanx::execution_tree::primitives::primitive_component_base
-      , public std::enable_shared_from_this<harries>
+      , public std::enable_shared_from_this<harris>
     {
     private:
         using primitive_argument_type =
@@ -34,13 +34,16 @@ namespace phylanx_halide_plugin {
             primitive_arguments_type const& operands,
             primitive_arguments_type const& args) const;
 
+        primitive_argument_type filter(
+            primitive_argument_type&& val, eval_context ctx) const;
+
     public:
         static phylanx::execution_tree::match_pattern_type const match_data;
 
-        harries() = default;
+        harris() = default;
 
-        harries(primitive_arguments_type&& operands,
-            std::string const& name, std::string const& codename);
+        harris(primitive_arguments_type&& operands, std::string const& name,
+            std::string const& codename);
 
         hpx::future<primitive_argument_type> eval(
             primitive_arguments_type const& params,
@@ -48,12 +51,12 @@ namespace phylanx_halide_plugin {
             eval_context ctx) const override;
     };
 
-    inline phylanx::execution_tree::primitive create_harries(
+    inline phylanx::execution_tree::primitive create_harris(
         hpx::id_type const& locality,
         phylanx::execution_tree::primitive_arguments_type&& operands,
         std::string const& name = "", std::string const& codename = "")
     {
         return phylanx::execution_tree::create_primitive_component(
-            locality, "harries", std::move(operands), name, codename);
+            locality, "harris", std::move(operands), name, codename);
     }
 }

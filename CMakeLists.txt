@@ -29,5 +29,6 @@ include(CheckCXXCompilerFlag)
 include(CMakeDependentOption)
 
 find_package(Phylanx)
+find_package(Halide REQUIRED)
 
 add_subdirectory(plugin)

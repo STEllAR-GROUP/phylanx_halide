@@ -10,5 +10,5 @@
 
 PHYLANX_REGISTER_PLUGIN_MODULE();
 
-PHYLANX_REGISTER_PLUGIN_FACTORY(harries_plugin,
-    phylanx_halide_plugin::harries::match_data);
+PHYLANX_REGISTER_PLUGIN_FACTORY(harris_plugin,
+    phylanx_halide_plugin::harris::match_data);
