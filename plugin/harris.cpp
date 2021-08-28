@@ -54,8 +54,7 @@ namespace phylanx_halide_plugin {
     phylanx::execution_tree::primitive_argument_type harris::filter(
         primitive_argument_type&& val, eval_context ctx) const
     {
-        auto data =
-            extract_numeric_value_strict(std::move(val), name_, codename_);
+        auto data = extract_numeric_value(std::move(val), name_, codename_);
 
         if (phylanx::execution_tree::extract_numeric_value_dimension(
                 data, name_, codename_) != 3)
@@ -68,18 +67,18 @@ namespace phylanx_halide_plugin {
         }
 
         auto img = data.tensor();
-        auto input = Halide::Buffer<double>::make_interleaved(
+        auto input = Halide::Runtime::Buffer<double>::make_interleaved(
             img.data(), img.columns(), img.rows(), img.pages());
 
         blaze::DynamicMatrix<double> outimg(
             input.width() - 6, input.height() - 6);
 
         {
-            auto output = Halide::Buffer<double>::make_interleaved(
+            auto output = Halide::Runtime::Buffer<double>::make_interleaved(
                 outimg.data(), outimg.columns(), outimg.rows(), 1);
             output.set_min(3, 3);
 
-            ::harris(input.raw_buffer(), output.raw_buffer());
+            ::harris(input, output);
             output.device_sync();
         }
 

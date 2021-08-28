@@ -12,8 +12,8 @@ Expr sum3x3(Func f, Var x, Var y) {
 
 class Harris : public Halide::Generator<Harris> {
 public:
-    Input<Buffer<float>> input{"input", 3};
-    Output<Buffer<float>> output{"output", 2};
+    Input<Buffer<double>> input{"input", 3};
+    Output<Buffer<double>> output{"output", 2};
 
     void generate() {
         Var x("x"), y("y"), c("c");
@@ -107,7 +107,7 @@ public:
                     .unroll(y);
             } else {
                 // 0.92ms on an Intel i9-9960X using 16 threads
-                const int vec = natural_vector_size<float>();
+                const int vec = natural_vector_size<double>();
                 output.split(y, y, yi, 32)
                     .parallel(y)
                     .vectorize(x, vec);
