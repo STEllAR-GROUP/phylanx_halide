@@ -9,6 +9,8 @@ cmake_minimum_required(VERSION 3.3.2 FATAL_ERROR)
 # explicitly set certain policies
 cmake_policy(VERSION 3.3.2)
 
+set(CMAKE_CXX_STANDARD 17)
+
 ################################################################################
 # Build type (needs to be handled before project command below)
 ################################################################################
