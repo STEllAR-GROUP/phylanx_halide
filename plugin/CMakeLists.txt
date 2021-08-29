@@ -4,7 +4,7 @@
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 add_executable(harris.generator harris_generator.cpp)
-target_link_libraries(harris.generator PRIVATE Halide::Generator Halide::Tools)
+target_link_libraries(harris.generator PRIVATE Halide::Generator Halide::Tools Halide::Halide)
 
 # Halide filters
 add_halide_library(harris FROM harris.generator)
@@ -28,6 +28,7 @@ add_phylanx_primitive_plugin(
     HEADERS ${plugin_headers}
     SOURCES ${plugin_sources}
     DEPENDENCIES
+        Halide::Halide
         Halide::ImageIO
         harris
         harris_auto_schedule
