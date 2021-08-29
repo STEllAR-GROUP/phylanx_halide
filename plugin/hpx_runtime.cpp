@@ -1,9 +1,10 @@
+#include <hpx/config.hpp>
+
 #include <Halide.h>
 #include <HalideRuntime.h>
 
 #include <hpx/hpx_init.hpp>
 #include <hpx/iostream.hpp>
-
 #include <hpx/include/parallel_for_loop.hpp>
 
 extern "C" int hpx_halide_do_par_for(void *ctx, int (*f)(void *, int, uint8_t *),
