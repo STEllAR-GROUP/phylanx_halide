@@ -14,33 +14,12 @@ extern "C" int hpx_halide_do_par_for(void *ctx, int (*f)(void *, int, uint8_t *)
   return 0;
 }
 
-///////////////////////////////////////////////////////////////////////////
-// Allow applications to add configuration settings if HPX_MAIN is set
-std::vector<std::string>(*prev_user_main_config_function)(
-    std::vector<std::string> const&) = nullptr;
-
-std::vector<std::string> user_main_config(
-    std::vector<std::string> const& config)
+// Make sure to register the HPX backend functionalities
+struct on_load
 {
-    // register halide custom handlers
-    halide_set_custom_do_par_for(&hpx_halide_do_par_for);
-
-    // If there was another config function registered, call it
-    if (prev_user_main_config_function)
+    on_load()
     {
-        return prev_user_main_config_function(config);
-    }
-    return config;
-}
-
-// Make sure our configuration information is injected into the startup
-// procedure
-struct register_user_main_config
-{
-    register_user_main_config()
-    {
-        prev_user_main_config_function =
-            hpx_startup::user_main_config_function;
-        hpx_startup::user_main_config_function = &user_main_config;
+        // register halide custom handlers
+        ::halide_set_custom_do_par_for(&hpx_halide_do_par_for);
     }
 } cfg;
