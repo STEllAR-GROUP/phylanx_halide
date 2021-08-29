@@ -3,7 +3,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#include<hpx/config.hpp>
+#include <hpx/config.hpp>
 
 #include <Halide.h>
 
@@ -69,15 +69,15 @@ namespace phylanx_halide_plugin {
         }
 
         auto img = data.tensor();
-        auto input = Halide::Runtime::Buffer<double>::make_interleaved(
-            img.data(), img.columns(), img.rows(), img.pages());
+        Halide::Runtime::Buffer<double> input(
+            img.data(), img.rows(), img.pages(), img.columns());
 
         blaze::DynamicMatrix<double> outimg(
             input.width() - 6, input.height() - 6);
 
         {
-            auto output = Halide::Runtime::Buffer<double>::make_interleaved(
-                outimg.data(), outimg.columns(), outimg.rows(), 1);
+            Halide::Runtime::Buffer<double> output(
+                outimg.data(), outimg.rows(), outimg.columns());
             output.set_min(3, 3);
 
             ::harris(input, output);

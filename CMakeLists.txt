@@ -26,6 +26,10 @@ project(HalidePhylanxPlugin CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Debug library postfix
+set(CMAKE_DEBUG_POSTFIX "d")
+set(PHYLANX_DEBUG_POSTFIX "d")
+
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 include(CMakeDependentOption)
