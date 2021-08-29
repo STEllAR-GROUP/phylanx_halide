@@ -3,13 +3,18 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#include<hpx/config.hpp>
+
+#include <Halide.h>
+
+#include "harris.h"
+#include "harris.hpp"
+
 #include <phylanx/config.hpp>
 
 #include <hpx/exception.hpp>
 #include <hpx/include/lcos.hpp>
 #include <hpx/include/util.hpp>
-
-#include <Halide.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -17,9 +22,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "harris.h"
-#include "harris.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace phylanx_halide_plugin {
