@@ -30,9 +30,13 @@ namespace phylanx_halide_plugin {
         using eval_context = phylanx::execution_tree::eval_context;
 
     protected:
+        // hpx::future<primitive_argument_type> eval(
+        //     primitive_arguments_type const& operands,
+        //     primitive_arguments_type const& args) const;
         hpx::future<primitive_argument_type> eval(
-            primitive_arguments_type const& operands,
-            primitive_arguments_type const& args) const;
+            primitive_arguments_type const& params,
+            primitive_arguments_type const& args,
+            eval_context ctx) const override;
 
         primitive_argument_type filter(
             primitive_argument_type&& val, eval_context ctx) const;
@@ -45,10 +49,10 @@ namespace phylanx_halide_plugin {
         harris(primitive_arguments_type&& operands, std::string const& name,
             std::string const& codename);
 
-        hpx::future<primitive_argument_type> eval(
-            primitive_arguments_type const& params,
-            primitive_arguments_type const& args,
-            eval_context ctx) const override;
+        // hpx::future<primitive_argument_type> eval(
+        //     primitive_arguments_type const& params,
+        //     primitive_arguments_type const& args,
+        //     eval_context ctx) const override;
     };
 
     inline phylanx::execution_tree::primitive create_harris(

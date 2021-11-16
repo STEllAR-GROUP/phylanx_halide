@@ -37,4 +37,4 @@ include(CMakeDependentOption)
 find_package(Phylanx)
 find_package(Halide REQUIRED)
 
-add_subdirectory(plugin)
+add_subdirectory(halide)
