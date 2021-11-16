@@ -13,6 +13,8 @@
 .idea/
 build*/
 .vscode/
-cmake-build-*
-cmake-install-*
+cmake-build*/
+cmake-install*/
 phylanx.egg-info/
+
+__physlcache__/
