@@ -4,3 +4,5 @@
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 add_subdirectory(harris)
+add_subdirectory(blas)
+add_subdirectory(blaze_blas)
