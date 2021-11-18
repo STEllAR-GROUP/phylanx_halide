@@ -246,9 +246,9 @@ namespace phylanx_blaze_blas_plugin {
                 return this_->blaze_dscal(a.get(), x.get());
             },
                 phylanx::execution_tree::value_operand(
-                    operands[0], args, name_, codename_, std::move(ctx)),
+                    operands[0], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[1], args, name_, codename_, std::move(ctx)));
+                    operands[1], args, name_, codename_, ctx));
         }
 
         if (6 == operands.size() && this_->mode_ == DGEMV)
@@ -267,17 +267,17 @@ namespace phylanx_blaze_blas_plugin {
                     x.get(), b.get(), y.get());
             },
                 phylanx::execution_tree::value_operand(
-                    operands[0], args, name_, codename_, std::move(ctx)),
+                    operands[0], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[1], args, name_, codename_, std::move(ctx)),
+                    operands[1], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[2], args, name_, codename_, std::move(ctx)),
+                    operands[2], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[3], args, name_, codename_, std::move(ctx)),
+                    operands[3], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[4], args, name_, codename_, std::move(ctx)),
+                    operands[4], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[5], args, name_, codename_, std::move(ctx)));
+                    operands[5], args, name_, codename_, ctx));
         }
 
         if (7 == operands.size() && this_->mode_ == DGEMM)
@@ -297,19 +297,19 @@ namespace phylanx_blaze_blas_plugin {
                     B.get(), b.get(), C.get());
             },
                 phylanx::execution_tree::value_operand(
-                    operands[0], args, name_, codename_, std::move(ctx)),
+                    operands[0], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[1], args, name_, codename_, std::move(ctx)),
+                    operands[1], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[2], args, name_, codename_, std::move(ctx)),
+                    operands[2], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[3], args, name_, codename_, std::move(ctx)),
+                    operands[3], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[4], args, name_, codename_, std::move(ctx)),
+                    operands[4], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[5], args, name_, codename_, std::move(ctx)),
+                    operands[5], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
-                    operands[6], args, name_, codename_, std::move(ctx)));
+                    operands[6], args, name_, codename_, ctx));
         }
         HPX_THROW_EXCEPTION(hpx::bad_parameter,
             "Non BLAS function",
