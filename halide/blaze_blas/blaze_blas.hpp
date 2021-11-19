@@ -141,7 +141,7 @@ namespace phylanx_blaze_blas_plugin {
             locality, "blaze_dscal", std::move(operands), name, codename);
     }
 
-    inline phylanx::execution_tree::primitive create_dsum_op(
+    inline phylanx::execution_tree::primitive create_dasum_op(
         hpx::id_type const& locality,
         phylanx::execution_tree::primitive_arguments_type&& operands,
         std::string const& name = "", std::string const& codename = "")

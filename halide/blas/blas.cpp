@@ -23,6 +23,8 @@
 #include <utility>
 #include <vector>
 
+using Halide::Runtime::Buffer;
+
 ///////////////////////////////////////////////////////////////////////////////
 namespace phylanx_halide_plugin {
 
@@ -201,9 +203,41 @@ namespace phylanx_halide_plugin {
         auto x_value = phylanx::execution_tree::extract_numeric_value(std::move(x), name_, codename_);
         auto in_vector = x_value.vector();
         int in_size = in_vector.size();
-        Halide::Runtime::Buffer<double> x_buffer(in_vector.data(), in_size);
+        Buffer<double> x_buffer(in_vector.data(), in_size);
         halide_dscal_impl(a_value, x_buffer, nullptr, x_buffer);
         return primitive_argument_type(std::move(x_value));
+    }
+
+    phylanx::execution_tree::primitive_argument_type blas::dasum(
+        primitive_argument_type&& N, primitive_argument_type&& X, primitive_argument_type&& incX) const
+    {
+        double result;
+        int n_value = static_cast<int> (extract_scalar_numeric_value(std::move(N), name_, codename_));
+        int inc_value = static_cast<int> (extract_scalar_numeric_value(std::move(incX), name_, codename_));
+        auto x_value = phylanx::execution_tree::extract_numeric_value(std::move(X), name_, codename_);
+        auto x_vector = x_value.vector();
+        halide_dimension_t shape = { 0, n_value, inc_value };
+        auto buff_x = Buffer<double>(x_vector.data(), 1, &shape);
+        auto buff_sum = Buffer<double>::make_scalar(&result);
+        halide_dasum(buff_x, buff_sum);
+
+        return primitive_argument_type(std::move(result));
+    }
+
+    phylanx::execution_tree::primitive_argument_type blas::dnrm2(
+        primitive_argument_type&& N, primitive_argument_type&& X, primitive_argument_type&& incX) const
+    {
+        double result;
+        int n_value = static_cast<int> (extract_scalar_numeric_value(std::move(N), name_, codename_));
+        int inc_value = static_cast<int> (extract_scalar_numeric_value(std::move(incX), name_, codename_));
+        auto x_value = phylanx::execution_tree::extract_numeric_value(std::move(X), name_, codename_);
+        auto x_vector = x_value.vector();
+        halide_dimension_t shape = { 0, n_value, inc_value };
+        auto buff_x = Buffer<double>(x_vector.data(), 1, &shape);
+        auto buff_nrm = Buffer<double>::make_scalar(&result);
+        halide_ddot(buff_x, buff_x, buff_nrm);
+
+        return primitive_argument_type(std::sqrt(result));
     }
 
     phylanx::execution_tree::primitive_argument_type blas::dgemm(
@@ -226,9 +260,9 @@ namespace phylanx_halide_plugin {
         auto C_value = phylanx::execution_tree::extract_numeric_value(std::move(C), name_, codename_);
         auto vector_C = C_value.matrix();
 
-        Halide::Runtime::Buffer<double> A_buffer(vector_A.data(), vector_A.rows(), vector_A.columns());
-        Halide::Runtime::Buffer<double> B_buffer(vector_B.data(), vector_B.rows(), vector_B.columns());
-        Halide::Runtime::Buffer<double> C_buffer(vector_C.data(), vector_C.rows(), vector_C.columns());
+        Buffer<double> A_buffer(vector_A.data(), vector_A.rows(), vector_A.columns());
+        Buffer<double> B_buffer(vector_B.data(), vector_B.rows(), vector_B.columns());
+        Buffer<double> C_buffer(vector_C.data(), vector_C.rows(), vector_C.columns());
 
         halide_dgemm(is_a, is_b, a_value, A_buffer, B_buffer, b_value, C_buffer);
 
@@ -258,6 +292,45 @@ namespace phylanx_halide_plugin {
                 phylanx::execution_tree::value_operand(
                     operands[1], args, name_, codename_, ctx));
         }
+
+        if (3 == operands.size() && this_->mode_ == DASUM)
+        {
+            return hpx::dataflow(
+                hpx::launch::sync,
+                [this_ = std::move(this_), ctx = std::move(ctx_)](
+                    hpx::future<primitive_argument_type>&& N,
+                    hpx::future<primitive_argument_type>&& x,
+                    hpx::future<primitive_argument_type>&& incX)
+                ->primitive_argument_type {
+                return this_->dasum(N.get(), x.get(), incX.get());
+            },
+                phylanx::execution_tree::value_operand(
+                    operands[0], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[1], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[2], args, name_, codename_, ctx));
+        }
+
+        if (3 == operands.size() && this_->mode_ == DNRM2)
+        {
+            return hpx::dataflow(
+                hpx::launch::sync,
+                [this_ = std::move(this_), ctx = std::move(ctx_)](
+                    hpx::future<primitive_argument_type>&& N,
+                    hpx::future<primitive_argument_type>&& x,
+                    hpx::future<primitive_argument_type>&& incX)
+                ->primitive_argument_type {
+                return this_->dnrm2(N.get(), x.get(), incX.get());
+            },
+                phylanx::execution_tree::value_operand(
+                    operands[0], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[1], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[2], args, name_, codename_, ctx));
+        }
+
 
         if (6 == operands.size() && this_->mode_ == DGEMV)
         {
