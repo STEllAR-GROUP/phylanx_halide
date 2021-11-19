@@ -240,6 +240,86 @@ namespace phylanx_halide_plugin {
         return primitive_argument_type(std::sqrt(result));
     }
 
+    phylanx::execution_tree::primitive_argument_type blas::daxpy(
+        primitive_argument_type&& a, primitive_argument_type&& x, primitive_argument_type&& y) const
+    {
+        double a_value = static_cast<double> (extract_scalar_numeric_value(std::move(a), name_, codename_));
+
+        auto x_value = phylanx::execution_tree::extract_numeric_value(std::move(x), name_, codename_);
+        auto x_vector = x_value.vector();
+        int x_size = x_vector.size();
+        Buffer<double> x_buffer(x_vector.data(), x_size);
+
+        auto y_value = phylanx::execution_tree::extract_numeric_value(std::move(y), name_, codename_);
+        auto y_vector = y_value.vector();
+        int y_size = y_vector.size();
+        Buffer<double> y_buffer(y_vector.data(), y_size);
+
+        halide_daxpy_impl(a_value, x_buffer, y_buffer, y_buffer);
+
+
+        return primitive_argument_type(std::move(y_value));
+    }
+
+    phylanx::execution_tree::primitive_argument_type blas::dgemv(
+        primitive_argument_type&& is_trans,
+        primitive_argument_type&& a,
+        primitive_argument_type&& A,
+        primitive_argument_type&& x,
+        primitive_argument_type&& b,
+        primitive_argument_type&& y)  const
+    {
+        bool is_transpose = static_cast<bool> (extract_boolean_value(std::move(is_trans), name_, codename_));
+        double a_value = extract_scalar_numeric_value(std::move(a), name_, codename_);
+        double b_value = extract_scalar_numeric_value(std::move(b), name_, codename_);
+
+        auto A_value = phylanx::execution_tree::extract_numeric_value(std::move(A), name_, codename_);
+        auto vector_A = A_value.matrix();
+        Buffer<double> A_buffer(vector_A.data(), vector_A.rows(), vector_A.columns());
+
+        auto x_value = phylanx::execution_tree::extract_numeric_value(std::move(x), name_, codename_);
+        auto x_vector = x_value.vector();
+        int x_size = x_vector.size();
+        Buffer<double> x_buffer(x_vector.data(), x_size);
+
+        auto y_value = phylanx::execution_tree::extract_numeric_value(std::move(y), name_, codename_);
+        auto y_vector = y_value.vector();
+        int y_size = y_vector.size();
+        Buffer<double> y_buffer(y_vector.data(), y_size);
+
+        halide_dgemv(is_transpose, a_value, A_buffer, x_buffer, b_value, y_buffer);
+
+        return primitive_argument_type(std::move(y_value));
+    }
+
+    phylanx::execution_tree::primitive_argument_type blas::dger(
+        primitive_argument_type&& a,
+        primitive_argument_type&& x,
+        primitive_argument_type&& y,
+        primitive_argument_type&& A)  const
+    {
+        double a_value = extract_scalar_numeric_value(std::move(a), name_, codename_);
+
+        auto x_value = phylanx::execution_tree::extract_numeric_value(std::move(x), name_, codename_);
+        auto x_vector = x_value.vector();
+        int x_size = x_vector.size();
+        Buffer<double> x_buffer(x_vector.data(), x_size);
+
+        auto y_value = phylanx::execution_tree::extract_numeric_value(std::move(y), name_, codename_);
+        auto y_vector = y_value.vector();
+        int y_size = y_vector.size();
+        Buffer<double> y_buffer(y_vector.data(), y_size);
+
+
+        auto A_value = phylanx::execution_tree::extract_numeric_value(std::move(A), name_, codename_);
+        auto vector_A = A_value.matrix();
+        Buffer<double> A_buffer(vector_A.data(), vector_A.rows(), vector_A.columns());
+
+        halide_dger(a_value, x_buffer, y_buffer, A_buffer);
+
+        return primitive_argument_type(std::move(A_value));
+    }
+
     phylanx::execution_tree::primitive_argument_type blas::dgemm(
         primitive_argument_type&& is_a_trans,
         primitive_argument_type&& is_b_trans,
@@ -331,6 +411,25 @@ namespace phylanx_halide_plugin {
                     operands[2], args, name_, codename_, ctx));
         }
 
+        if (3 == operands.size() && this_->mode_ == DAXPY)
+        {
+            return hpx::dataflow(
+                hpx::launch::sync,
+                [this_ = std::move(this_), ctx = std::move(ctx_)](
+                    hpx::future<primitive_argument_type>&& a,
+                    hpx::future<primitive_argument_type>&& x,
+                    hpx::future<primitive_argument_type>&& y)
+                ->primitive_argument_type {
+                return this_->daxpy(a.get(), x.get(), y.get());
+            },
+                phylanx::execution_tree::value_operand(
+                    operands[0], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[1], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[2], args, name_, codename_, ctx));
+        }
+
 
         if (6 == operands.size() && this_->mode_ == DGEMV)
         {
@@ -359,6 +458,28 @@ namespace phylanx_halide_plugin {
                     operands[4], args, name_, codename_, ctx),
                 phylanx::execution_tree::value_operand(
                     operands[5], args, name_, codename_, ctx));
+        }
+
+        if (4 == operands.size() && this_->mode_ == DGER)
+        {
+            return hpx::dataflow(
+                hpx::launch::sync,
+                [this_ = std::move(this_), ctx = std::move(ctx_)](
+                    hpx::future<primitive_argument_type>&& a,
+                    hpx::future<primitive_argument_type>&& x,
+                    hpx::future<primitive_argument_type>&& y,
+                    hpx::future<primitive_argument_type>&& A)
+                ->primitive_argument_type {
+                return this_->dger(a.get(), x.get(), y.get(), A.get());
+            },
+                phylanx::execution_tree::value_operand(
+                    operands[0], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[1], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[2], args, name_, codename_, ctx),
+                phylanx::execution_tree::value_operand(
+                    operands[3], args, name_, codename_, ctx));
         }
 
         if (7 == operands.size() && this_->mode_ == DGEMM)
