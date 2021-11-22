@@ -7,11 +7,11 @@
 #include <hpx/iostream.hpp>
 #include <hpx/include/parallel_for_loop.hpp>
 
-extern "C" int hpx_halide_do_par_for(void *ctx, int (*f)(void *, int, uint8_t *),
-                              int min, int extent, uint8_t *closure) {
-  hpx::for_loop(hpx::execution::par, min, min + extent,
-                [&](int i) { f(ctx, i, closure); });
-  return 0;
+extern "C" int hpx_halide_do_par_for(void* ctx, int (*f)(void*, int, uint8_t*),
+    int min, int extent, uint8_t * closure) {
+    hpx::for_loop(hpx::execution::par, min, min + extent,
+        hpx::util::annotated_function([&](int i) { f(ctx, i, closure); }, "halide_hpx_for"));
+    return 0;
 }
 
 // Make sure to register the HPX backend functionalities
